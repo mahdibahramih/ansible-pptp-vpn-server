@@ -1,0 +1,52 @@
+---
+
+- hosts: all 
+  become: yes 
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: install pptpd
+      apt:
+        name: pptpd
+        state: latest
+        
+    - name: config pptp address
+      blockinfile:
+        path: /etc/pptpd.conf
+        block: |
+          localip {{ pptp_server_ip }}
+          remoteip {{ pptpd_client_ips }}
+    - name: config pptp DNS  
+      blockinfile:
+        path: /etc/ppp/pptpd-options
+        block: |
+          ms-dns {{ DNS1_ip }}
+          ms-dns {{ DNS2_ip }}
+
+    - name: add pptp users
+      template:
+        src: users.j2
+        dest: /etc/ppp/chap-secrets
+      notify: restart_pptpd 
+    
+    - name: add iptables FORWARD role
+      command: iptables --append FORWARD --in-interface "{{ main_interface }}" -j ACCEPT
+    
+    - name: add iptables MASQUERADE roles for eth
+      command: iptables --table nat --append POSTROUTING --out-interface ppp0 -j MASQUERADE
+    
+    - name: add iptables MASQUERADE roles for eth  
+      command: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+    - name: sysctl config 
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        reload: yes
+
+  handlers:
+    - name: restart_pptpd
+      systemd:
+        name: pptpd
+        state: restarted 

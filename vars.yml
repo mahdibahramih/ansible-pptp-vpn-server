@@ -1,0 +1,16 @@
+---
+- pptp_server_ip: 192.168.0.1
+- pptpd_client_ips: 192.168.0.100-200
+- DNS1_ip: 4.2.2.4 
+- DNS2_ip: 8.8.8.8
+- main_interface: eth0
+- users:
+  - name: first_user
+    user_name: 
+    password: 
+    ip: "*"
+  - name: secend_user
+    user_name: 
+    password: 
+    ip: "*"
+      
