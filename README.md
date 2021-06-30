@@ -15,4 +15,4 @@ sudo apt install ansible
 # 2- Run playbook 
 ### Notify that You must modify variables and hosts in vars.yml and hosts file.<br/> also you must modify users.j2 file.
 
-ansible-playbook site.yml -i hosts
+ansible-playbook pptpd.yml -i hosts
